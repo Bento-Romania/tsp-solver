@@ -1,0 +1,28 @@
+# Java build output
+target/
+build/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+
+# Environment / secrets
+.env
+.env.*
+
+# GraphHopper routing graph cache and downloaded OSM data
+graph-cache/
+*.osm.pbf
+*.ghz
+
+# Docker
+*.pid
+
+# OS
+.DS_Store
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.iml
+*.swp
