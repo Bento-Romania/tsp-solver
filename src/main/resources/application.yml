@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: tsp-solver
+
+server:
+  port: 8081
+
+app:
+  graphhopper:
+    graph-location: ./data/graph-cache
+    osm-file: ./data/romania-latest.osm.pbf
+    osm-download-url: https://download.geofabrik.de/europe/romania-latest.osm.pbf
+    thread-pool-size: 8
+    profile: car
+    haversine-fallback-speed-kmh: 20.0
