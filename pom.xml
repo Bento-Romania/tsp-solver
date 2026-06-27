@@ -19,7 +19,7 @@
     <properties>
         <java.version>21</java.version>
         <graphhopper.version>10.2</graphhopper.version>
-        <ortools.version>9.11.4210</ortools.version>
+        <ortools.version>9.8.3296</ortools.version>
     </properties>
 
     <dependencies>
