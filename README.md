@@ -106,8 +106,8 @@ To use a different region, override the environment variables:
 docker run -d \
   -p 8081:8081 \
   -v $(pwd)/data:/data \
-  -e APP_GRAPHHOPPER_OSM_DOWNLOAD_URL=https://download.geofabrik.de/europe/germany-latest.osm.pbf \
-  -e APP_GRAPHHOPPER_OSM_FILE=/data/germany-latest.osm.pbf \
+  -e APP_GRAPHHOPPER_OSM_DOWNLOAD_URL=https://download.geofabrik.de/europe/romania-latest.osm.pbf \
+  -e APP_GRAPHHOPPER_OSM_FILE=/data/romania-latest.osm.pbf \
   bento-tsp-solver
 ```
 
