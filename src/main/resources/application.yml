@@ -13,3 +13,5 @@ app:
     thread-pool-size: 8
     profile: car
     haversine-fallback-speed-kmh: 20.0
+  security:
+    api-keys: ""

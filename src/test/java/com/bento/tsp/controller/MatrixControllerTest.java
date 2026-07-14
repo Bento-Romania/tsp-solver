@@ -1,6 +1,7 @@
 package com.bento.tsp.controller;
 
 import com.bento.tsp.model.MatrixResponse;
+import com.bento.tsp.security.ApiKeyAuthFilter;
 import com.bento.tsp.service.DistanceMatrixService;
 import com.bento.tsp.service.GraphHopperService;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -20,7 +22,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MatrixController.class)
+@TestPropertySource(properties = "app.security.api-keys=test-key")
 class MatrixControllerTest {
+
+    static final String VALID_KEY = "test-key";
 
     @Autowired
     MockMvc mockMvc;
@@ -49,6 +54,7 @@ class MatrixControllerTest {
                         new double[][]{{0, 54_000}, {54_000, 0}}));
 
         mockMvc.perform(post("/api/matrix")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TWO_COORDS))
                 .andExpect(status().isOk())
@@ -62,6 +68,7 @@ class MatrixControllerTest {
         when(graphHopperService.isReady()).thenReturn(false);
 
         mockMvc.perform(post("/api/matrix")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TWO_COORDS))
                 .andExpect(status().isServiceUnavailable());
@@ -72,6 +79,7 @@ class MatrixControllerTest {
         when(graphHopperService.isReady()).thenReturn(true);
 
         mockMvc.perform(post("/api/matrix")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"coordinates": [{"lat": 44.4268, "lon": 26.1025}]}
@@ -84,6 +92,7 @@ class MatrixControllerTest {
         when(graphHopperService.isReady()).thenReturn(true);
 
         mockMvc.perform(post("/api/matrix")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"coordinates\": null}"))
                 .andExpect(status().isBadRequest());
@@ -94,9 +103,27 @@ class MatrixControllerTest {
         when(graphHopperService.isReady()).thenReturn(true);
 
         mockMvc.perform(post("/api/matrix")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void matrixReturns401WhenApiKeyMissing() throws Exception {
+        mockMvc.perform(post("/api/matrix")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TWO_COORDS))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void matrixReturns401WhenApiKeyInvalid() throws Exception {
+        mockMvc.perform(post("/api/matrix")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, "wrong-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TWO_COORDS))
+                .andExpect(status().isUnauthorized());
     }
 
     // ── /api/health ──────────────────────────────────────────────────────────

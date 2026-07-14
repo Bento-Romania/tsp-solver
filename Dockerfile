@@ -15,5 +15,6 @@ ENV APP_GRAPHHOPPER_OSM_DOWNLOAD_URL=https://download.geofabrik.de/europe/romani
 ENV APP_GRAPHHOPPER_THREAD_POOL_SIZE=8
 ENV APP_GRAPHHOPPER_PROFILE=car
 ENV APP_GRAPHHOPPER_HAVERSINE_FALLBACK_SPEED_KMH=20
+ENV APP_SECURITY_API_KEYS=""
 EXPOSE 8081
 ENTRYPOINT ["java", "-Xmx4g", "-Xms512m", "-XX:+UseG1GC", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
