@@ -2,6 +2,7 @@ package com.bento.tsp.controller;
 
 import com.bento.tsp.model.GeoJsonLineString;
 import com.bento.tsp.model.MatrixResponse;
+import com.bento.tsp.security.ApiKeyAuthFilter;
 import com.bento.tsp.service.DistanceMatrixService;
 import com.bento.tsp.service.GraphHopperService;
 import com.bento.tsp.service.RouteGeometryService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -23,7 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SolveController.class)
+@TestPropertySource(properties = "app.security.api-keys=test-key")
 class SolveControllerTest {
+
+    static final String VALID_KEY = "test-key";
 
     @Autowired
     MockMvc mockMvc;
@@ -65,6 +70,7 @@ class SolveControllerTest {
                         new double[]{26.1025, 44.4268})));
 
         mockMvc.perform(post("/api/solve")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TWO_COORDS_START_0))
                 .andExpect(status().isOk())
@@ -79,6 +85,7 @@ class SolveControllerTest {
         when(graphHopperService.isReady()).thenReturn(false);
 
         mockMvc.perform(post("/api/solve")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TWO_COORDS_START_0))
                 .andExpect(status().isServiceUnavailable());
@@ -89,6 +96,7 @@ class SolveControllerTest {
         when(graphHopperService.isReady()).thenReturn(true);
 
         mockMvc.perform(post("/api/solve")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -107,6 +115,7 @@ class SolveControllerTest {
         when(graphHopperService.isReady()).thenReturn(true);
 
         mockMvc.perform(post("/api/solve")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -124,6 +133,7 @@ class SolveControllerTest {
         when(graphHopperService.isReady()).thenReturn(true);
 
         mockMvc.perform(post("/api/solve")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, VALID_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -132,5 +142,22 @@ class SolveControllerTest {
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void solveReturns401WhenApiKeyMissing() throws Exception {
+        mockMvc.perform(post("/api/solve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TWO_COORDS_START_0))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void solveReturns401WhenApiKeyInvalid() throws Exception {
+        mockMvc.perform(post("/api/solve")
+                        .header(ApiKeyAuthFilter.API_KEY_HEADER, "wrong-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TWO_COORDS_START_0))
+                .andExpect(status().isUnauthorized());
     }
 }

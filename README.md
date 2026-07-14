@@ -11,6 +11,8 @@ The service runs a two-stage pipeline:
 
 ### API
 
+All endpoints except `GET /api/health` require an API key sent via the `X-API-Key` header. Requests with a missing or unrecognized key receive `401 Unauthorized`. Accepted keys are configured via `APP_SECURITY_API_KEYS` (see [Configuration reference](#configuration-reference)).
+
 **`POST /api/solve`** — solve TSP and return ordered route
 
 Request:
@@ -121,6 +123,7 @@ docker run -d \
 | `APP_GRAPHHOPPER_PROFILE` | `car` | Routing profile |
 | `APP_GRAPHHOPPER_THREAD_POOL_SIZE` | `8` | Parallel routing threads for matrix computation |
 | `APP_GRAPHHOPPER_HAVERSINE_FALLBACK_SPEED_KMH` | `20` | Assumed speed for straight-line fallback distances |
+| `APP_SECURITY_API_KEYS` | *(empty)* | Comma-separated list of accepted API keys. Callers must send one via the `X-API-Key` header on every endpoint except `/api/health`; unset means no key is accepted |
 
 ---
 
